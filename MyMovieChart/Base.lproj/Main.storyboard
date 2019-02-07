@@ -12,6 +12,7 @@
         <!--List View Controller-->
         <scene sceneID="5eA-z2-hoe">
             <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HKJ-Sp-gmQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController id="Wa7-73-XU0" customClass="ListViewController" customModule="MyMovieChart" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="Kmn-Nl-UFg">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -36,13 +37,13 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                         </prototypes>
+                        <sections/>
                         <connections>
                             <outlet property="dataSource" destination="Wa7-73-XU0" id="d98-1f-f2v"/>
                             <outlet property="delegate" destination="Wa7-73-XU0" id="YWA-UQ-Vja"/>
                         </connections>
                     </tableView>
                 </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="HKJ-Sp-gmQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-190" y="105"/>
         </scene>
