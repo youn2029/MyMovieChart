@@ -10,6 +10,9 @@ import UIKit
 
 class ListViewController: UITableViewController {
     
+    // 현재까지 일어온 데이터의 페이지 정보
+    var page = 1
+    
     // 튜플 아이템으로 구성된 데이터 세트
 //    var dataset = [
 //        ("다크나이트", "영웅물에 철학에 음악까지 더해져 예술이 되다.", "2008-09-04", 8.95, "darknight.jpg"),
@@ -18,12 +21,11 @@ class ListViewController: UITableViewController {
 //    ]
     
     // 테이블 뷰를 구성할 리스트 데이터
-    var list : [MovieVO] = []
     
-//    lazy var list : [MovieVO] = {
-//
-//        var datalist = [MovieVO]()
-//
+    lazy var list : [MovieVO] = {
+
+        var datalist = [MovieVO]()
+
 //        for (title, desc, opendate, rating, thumbnail) in self.dataset {
 //
 //            let mvo = MovieVO()
@@ -36,9 +38,9 @@ class ListViewController: UITableViewController {
 //
 //            datalist.append(mvo)
 //        }
-//
-//        return datalist
-//    }()
+
+        return datalist
+    }()
     /**
      lazy 키워드
          1. lazy키워드를 붙여서 변수를 정의하면 참조되는 시점에 맞추어 초기화되므로 메모리 낭비를 줄임
@@ -48,50 +50,8 @@ class ListViewController: UITableViewController {
     // 뷰 컨트롤러가 초기화되면서 뷰가 메모리에 로딩될 때 호출되는 메소드
     override func viewDidLoad() {
         
-        // 1. 호핀 API 호출을 위한 URI를 생성
-        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=1&count=10&genreId=&order=releasedateasc"
-        let apiURI : URL! = URL(string: url)
-        
-        // 2. REST API를 호출
-        let apidata = try! Data(contentsOf: apiURI)
-        
-        // 3. 데이터 전송 결과를 로그로 출력 (반드시 필요한 코드는 아님)
-        let log = NSString(data: apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다"
-        NSLog("API Result=\(log)")
-        
-        // 4. JSON 객체를 파싱하여 NSDictionary 객체로 받음
-        do {
-            let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
-            
-            // 5. 데이터 구조에 따라 차례대로 캐스팅하며 읽어온다.
-            let hoppin = apiDictionary["hoppin"] as! NSDictionary
-            let movies = hoppin["movies"] as! NSDictionary
-            let movie = movies["movie"] as! NSArray
-            
-            // 6. lterator 처리를 하면서 API 데이터를 MoviewVO 객체에 저장한다
-            for row in movie {
-                // 순회 상수를 NSDictionary 타입으로 캐스팅
-                let r = row as! NSDictionary
-                
-                // 데이블 뷰 리스트를 구성할 데이터 형식
-                let mvo = MovieVO()
-                
-                //  movie 배열의 각 데이터를 mvo 상수의 속성에 대입
-                mvo.title = r["title"] as? String               // 제목
-                mvo.description = r["genreNames"] as? String    // 영화 설명
-                mvo.rating = (r["ratingAverage"] as! NSString).doubleValue      // 평점
-                mvo.thumbnail = r["thumbnailImage"] as? String  // 썸네일
-                mvo.detail = r["linkUrl"] as? String            // 상세 내용
-                
-                // list 배열에 추가
-                list.append(mvo)
-                
-            }
-            
-        } catch  {
-            
-        }
-        
+        // 영화 차트 API를 호출
+        self.callMovieAPI()        
     }
     
     // 테이블 뷰 행의 개수를 반환하는 메소드
@@ -153,4 +113,65 @@ class ListViewController: UITableViewController {
         NSLog("선택된 행은 \(indexPath.row)번째 행입니다.")
     }
     
+    // 더보기 버튼 이벤트
+    @IBAction func more(_ sender: Any) {
+        
+        // 현재 페이지 값에 1을 추가한다
+        self.page += 1
+        
+        // 영화차트 API를 호출한다.
+        self.callMovieAPI()
+        
+        // 데이터를 다시 읽어오도록 테이블 뷰를 갱신한다.
+        self.tableView.reloadData()
+        
+    }
+    
+    // 영화 차트 API를 호출해주는 메소드
+    func callMovieAPI() {
+        
+        // 1. 호핀 API 호출을 위한 URI를 생성
+        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=\(self.page)&count=10&genreId=&order=releasedateasc"
+        let apiURI : URL! = URL(string: url)
+        
+        // 2. REST API를 호출
+        let apidata = try! Data(contentsOf: apiURI)
+        
+        // 3. 데이터 전송 결과를 로그로 출력 (반드시 필요한 코드는 아님)
+        let log = NSString(data: apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다"
+        NSLog("API Result=\(log)")
+        
+        // 4. JSON 객체를 파싱하여 NSDictionary 객체로 받음
+        do {
+            let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
+            
+            // 5. 데이터 구조에 따라 차례대로 캐스팅하며 읽어온다.
+            let hoppin = apiDictionary["hoppin"] as! NSDictionary
+            let movies = hoppin["movies"] as! NSDictionary
+            let movie = movies["movie"] as! NSArray
+            
+            // 6. lterator 처리를 하면서 API 데이터를 MoviewVO 객체에 저장한다
+            for row in movie {
+                // 순회 상수를 NSDictionary 타입으로 캐스팅
+                let r = row as! NSDictionary
+                
+                // 데이블 뷰 리스트를 구성할 데이터 형식
+                let mvo = MovieVO()
+                
+                //  movie 배열의 각 데이터를 mvo 상수의 속성에 대입
+                mvo.title = r["title"] as? String               // 제목
+                mvo.description = r["genreNames"] as? String    // 영화 설명
+                mvo.rating = (r["ratingAverage"] as! NSString).doubleValue      // 평점
+                mvo.thumbnail = r["thumbnailImage"] as? String  // 썸네일
+                mvo.detail = r["linkUrl"] as? String            // 상세 내용
+                
+                // list 배열에 추가
+                list.append(mvo)
+                
+            }
+            
+        } catch  {
+            
+        }
+    }
 }
