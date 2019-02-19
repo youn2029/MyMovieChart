@@ -10,22 +10,18 @@ import UIKit
 
 class ListViewController: UITableViewController {
     
+    @IBOutlet var moreBtn: UIButton!    // 더보기 버튼
+    
     // 현재까지 일어온 데이터의 페이지 정보
     var page = 1
     
-    // 튜플 아이템으로 구성된 데이터 세트
-//    var dataset = [
-//        ("다크나이트", "영웅물에 철학에 음악까지 더해져 예술이 되다.", "2008-09-04", 8.95, "darknight.jpg"),
-//        ("호우시절", "때를 알고 내리는 좋은 비", "2009-10-08", 7.31, "rain.jpg"),
-//        ("말할 수 없는 비밀", "여기서 너까지 다섯 걸음", "2015-05-07", 9.19, "secret.jpg")
-//    ]
-    
     // 테이블 뷰를 구성할 리스트 데이터
+    lazy var list : [MovieVO] = [MovieVO]()
     
-    lazy var list : [MovieVO] = {
-
-        var datalist = [MovieVO]()
-
+//    lazy var list : [MovieVO] = {
+//
+//        var datalist = [MovieVO]()
+//
 //        for (title, desc, opendate, rating, thumbnail) in self.dataset {
 //
 //            let mvo = MovieVO()
@@ -38,9 +34,9 @@ class ListViewController: UITableViewController {
 //
 //            datalist.append(mvo)
 //        }
-
-        return datalist
-    }()
+//
+//        return datalist
+//    }()
     /**
      lazy 키워드
          1. lazy키워드를 붙여서 변수를 정의하면 참조되는 시점에 맞추어 초기화되므로 메모리 낭비를 줄임
@@ -51,7 +47,7 @@ class ListViewController: UITableViewController {
     override func viewDidLoad() {
         
         // 영화 차트 API를 호출
-        self.callMovieAPI()        
+        self.callMovieAPI()
     }
     
     // 테이블 뷰 행의 개수를 반환하는 메소드
@@ -167,11 +163,28 @@ class ListViewController: UITableViewController {
                 
                 // list 배열에 추가
                 list.append(mvo)
+            }
+            
+            // 7. 전체 데이터 카운트를 얻는다.
+            let totalCount = (hoppin["totalCount"] as! NSString).integerValue
+            
+            // 8. totalCount가 읽어온 데이터 크기와 같거나 클 경우 더보기 버튼을 막는다.
+            if (self.list.count >= totalCount) {
+                
+                let alert = UIAlertController(title: "알림", message: "마지막 목록입니다.", preferredStyle: .alert)
+                
+                let ok = UIAlertAction(title: "확인", style: .default)
+                
+                alert.addAction(ok)
+                
+                self.present(alert, animated: false)
+                
+                self.moreBtn.isHidden = true
                 
             }
             
         } catch  {
-            
+            NSLog("Parse Error!!")
         }
     }
 }
