@@ -11,32 +11,34 @@ import UIKit
 class ListViewController: UITableViewController {
     
     // 튜플 아이템으로 구성된 데이터 세트
-    var dataset = [
-        ("다크나이트", "영웅물에 철학에 음악까지 더해져 예술이 되다.", "2008-09-04", 8.95, "darknight.jpg"),
-        ("호우시절", "때를 알고 내리는 좋은 비", "2009-10-08", 7.31, "rain.jpg"),
-        ("말할 수 없는 비밀", "여기서 너까지 다섯 걸음", "2015-05-07", 9.19, "secret.jpg")
-    ]
+//    var dataset = [
+//        ("다크나이트", "영웅물에 철학에 음악까지 더해져 예술이 되다.", "2008-09-04", 8.95, "darknight.jpg"),
+//        ("호우시절", "때를 알고 내리는 좋은 비", "2009-10-08", 7.31, "rain.jpg"),
+//        ("말할 수 없는 비밀", "여기서 너까지 다섯 걸음", "2015-05-07", 9.19, "secret.jpg")
+//    ]
     
     // 테이블 뷰를 구성할 리스트 데이터
-    lazy var list : [MovieVO] = {
-        
-        var datalist = [MovieVO]()
-        
-        for (title, desc, opendate, rating, thumbnail) in self.dataset {
-            
-            let mvo = MovieVO()
-            
-            mvo.title = title
-            mvo.description = desc
-            mvo.opendate = opendate
-            mvo.rating = rating
-            mvo.thumbnail = thumbnail
-            
-            datalist.append(mvo)
-        }
-        
-        return datalist
-    }()
+    var list : [MovieVO] = []
+    
+//    lazy var list : [MovieVO] = {
+//
+//        var datalist = [MovieVO]()
+//
+//        for (title, desc, opendate, rating, thumbnail) in self.dataset {
+//
+//            let mvo = MovieVO()
+//
+//            mvo.title = title
+//            mvo.description = desc
+//            mvo.opendate = opendate
+//            mvo.rating = rating
+//            mvo.thumbnail = thumbnail
+//
+//            datalist.append(mvo)
+//        }
+//
+//        return datalist
+//    }()
     /**
      lazy 키워드
          1. lazy키워드를 붙여서 변수를 정의하면 참조되는 시점에 맞추어 초기화되므로 메모리 낭비를 줄임
@@ -45,6 +47,51 @@ class ListViewController: UITableViewController {
     
     // 뷰 컨트롤러가 초기화되면서 뷰가 메모리에 로딩될 때 호출되는 메소드
     override func viewDidLoad() {
+        
+        // 1. 호핀 API 호출을 위한 URI를 생성
+        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=1&count=10&genreId=&order=releasedateasc"
+        let apiURI : URL! = URL(string: url)
+        
+        // 2. REST API를 호출
+        let apidata = try! Data(contentsOf: apiURI)
+        
+        // 3. 데이터 전송 결과를 로그로 출력 (반드시 필요한 코드는 아님)
+        let log = NSString(data: apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다"
+        NSLog("API Result=\(log)")
+        
+        // 4. JSON 객체를 파싱하여 NSDictionary 객체로 받음
+        do {
+            let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
+            
+            // 5. 데이터 구조에 따라 차례대로 캐스팅하며 읽어온다.
+            let hoppin = apiDictionary["hoppin"] as! NSDictionary
+            let movies = hoppin["movies"] as! NSDictionary
+            let movie = movies["movie"] as! NSArray
+            
+            // 6. lterator 처리를 하면서 API 데이터를 MoviewVO 객체에 저장한다
+            for row in movie {
+                // 순회 상수를 NSDictionary 타입으로 캐스팅
+                let r = row as! NSDictionary
+                
+                // 데이블 뷰 리스트를 구성할 데이터 형식
+                let mvo = MovieVO()
+                
+                //  movie 배열의 각 데이터를 mvo 상수의 속성에 대입
+                mvo.title = r["title"] as? String               // 제목
+                mvo.description = r["genreNames"] as? String    // 영화 설명
+                mvo.rating = (r["ratingAverage"] as! NSString).doubleValue      // 평점
+                mvo.thumbnail = r["thumbnailImage"] as? String  // 썸네일
+                mvo.detail = r["linkUrl"] as? String            // 상세 내용
+                
+                // list 배열에 추가
+                list.append(mvo)
+                
+            }
+            
+        } catch  {
+            
+        }
+        
     }
     
     // 테이블 뷰 행의 개수를 반환하는 메소드
@@ -69,7 +116,14 @@ class ListViewController: UITableViewController {
         cell.opendate?.text = row.opendate
         cell.rating?.text = "\(row.rating!)"
         
-        cell.thumbnail.image = UIImage(named: row.thumbnail!)
+        // 섬네일 경로를 인자값으로 하는 URL 객체를 생성
+        let url : URL! = URL(string: row.thumbnail!)
+        
+        // 이미지를 읽어와 Data 객체에 저장
+        let imageData : Data = try! Data(contentsOf: url)
+        
+        // UIImage 객체를 생성하여 아울렛 변수에 대입
+        cell.thumbnail.image = UIImage(data: imageData)
         
         /// ============ 커스텀 style (태그속성) ============
 //        // 테이블 셀 객체를 직접 생성하는 대신 큐로부터 가져온다
