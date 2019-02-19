@@ -74,8 +74,10 @@ class ListViewController: UITableViewController {
         cell.opendate?.text = row.opendate
         cell.rating?.text = "\(row.rating!)"
         
-        // movieVO에 저장된 이미지를 대입
-        cell.thumbnail.image = row.thumbnailImage
+        // 수정) 비동기 방식으로 섬네일 이미지를 읽어옴
+        DispatchQueue.main.async(execute: {
+            cell.thumbnail.image = self.getThubnailImage(indexPath.row) //
+        })
         
         /// ============ 커스텀 style (태그속성) ============
 //        // 테이블 셀 객체를 직접 생성하는 대신 큐로부터 가져온다
@@ -186,6 +188,25 @@ class ListViewController: UITableViewController {
             
         } catch  {
             NSLog("Parse Error!!")
+        }
+    }
+    
+    // 섬네일 이미지를 받는 메소드
+    func getThubnailImage(_ index : Int) -> UIImage {
+        
+        // 인자값으로 받는 인덱스를 기반으로 해당하는 배열 데이터를 읽어옴
+        let mvo = self.list[index]
+        
+        // 메모이제이션 : 저장된 이미지가 있으면 그것을 반환하고, 없을 경우 내려받아 저장한 후 반환
+        if let savedImage = mvo.thumbnailImage {
+            return savedImage
+        } else {
+            
+            let url : URL! = URL(string: mvo.thumbnail!)
+            let imageData = try! Data(contentsOf: url)
+            mvo.thumbnailImage = UIImage(data: imageData)   // UIImage를 MovieVO 객체에 우선저장
+            
+            return mvo.thumbnailImage!
         }
     }
 }
