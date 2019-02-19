@@ -61,6 +61,8 @@ class ListViewController: UITableViewController {
         // 주어진 행에 맞는 데이터 소스를 읽어온다
         let row = self.list[indexPath.row]  // indexPath.row : 행 번호
         
+        NSLog("호출된 행번호: \(indexPath.row), 제목: \(row.title!)")
+        
         //NSLog("\(row.title)---")
         
         /// ============ 커스텀 style (커스텀 클래스) ============
@@ -72,14 +74,8 @@ class ListViewController: UITableViewController {
         cell.opendate?.text = row.opendate
         cell.rating?.text = "\(row.rating!)"
         
-        // 섬네일 경로를 인자값으로 하는 URL 객체를 생성
-        let url : URL! = URL(string: row.thumbnail!)
-        
-        // 이미지를 읽어와 Data 객체에 저장
-        let imageData : Data = try! Data(contentsOf: url)
-        
-        // UIImage 객체를 생성하여 아울렛 변수에 대입
-        cell.thumbnail.image = UIImage(data: imageData)
+        // movieVO에 저장된 이미지를 대입
+        cell.thumbnail.image = row.thumbnailImage
         
         /// ============ 커스텀 style (태그속성) ============
 //        // 테이블 셀 객체를 직접 생성하는 대신 큐로부터 가져온다
@@ -127,15 +123,15 @@ class ListViewController: UITableViewController {
     func callMovieAPI() {
         
         // 1. 호핀 API 호출을 위한 URI를 생성
-        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=\(self.page)&count=10&genreId=&order=releasedateasc"
+        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=\(self.page)&count=30&genreId=&order=releasedateasc"
         let apiURI : URL! = URL(string: url)
         
         // 2. REST API를 호출
         let apidata = try! Data(contentsOf: apiURI)
         
         // 3. 데이터 전송 결과를 로그로 출력 (반드시 필요한 코드는 아님)
-        let log = NSString(data: apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다"
-        NSLog("API Result=\(log)")
+//        let log = NSString(data: apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다"
+//        NSLog("API Result=\(log)")
         
         // 4. JSON 객체를 파싱하여 NSDictionary 객체로 받음
         do {
@@ -160,6 +156,11 @@ class ListViewController: UITableViewController {
                 mvo.rating = (r["ratingAverage"] as! NSString).doubleValue      // 평점
                 mvo.thumbnail = r["thumbnailImage"] as? String  // 썸네일
                 mvo.detail = r["linkUrl"] as? String            // 상세 내용
+                
+                let url : URL! = URL(string: mvo.thumbnail!)
+                let imageData = try! Data(contentsOf: url)
+                mvo.thumbnailImage = UIImage(data: imageData)
+                
                 
                 // list 배열에 추가
                 list.append(mvo)
