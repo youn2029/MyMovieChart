@@ -135,12 +135,18 @@
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
                             </wkWebView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="0PD-qn-hUU">
+                                <rect key="frame" x="169" y="325" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="ocy-pk-4Hl"/>
                     </view>
                     <navigationItem key="navigationItem" title="Title" id="130-OP-AfV"/>
                     <connections>
+                        <outlet property="spinner" destination="0PD-qn-hUU" id="5ay-j8-vfZ"/>
                         <outlet property="wv" destination="cv6-8c-dn5" id="ygC-RR-JXB"/>
                     </connections>
                 </viewController>
