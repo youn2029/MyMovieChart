@@ -125,7 +125,7 @@ class ListViewController: UITableViewController {
     func callMovieAPI() {
         
         // 1. 호핀 API 호출을 위한 URI를 생성
-        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=\(self.page)&count=30&genreId=&order=releasedateasc"
+        let url = "http://swiftapi.rubypaper.co.kr:2029/hoppin/movies?version=1&page=\(self.page)&count=10&genreId=&order=releasedateasc"
         let apiURI : URL! = URL(string: url)
         
         // 2. REST API를 호출
@@ -169,7 +169,7 @@ class ListViewController: UITableViewController {
             }
             
             // 7. 전체 데이터 카운트를 얻는다.
-            let totalCount = (hoppin["totalCount"] as! NSString).integerValue
+            let totalCount = (hoppin["totalCount"] as? NSString)!.integerValue
             
             // 8. totalCount가 읽어온 데이터 크기와 같거나 클 경우 더보기 버튼을 막는다.
             if (self.list.count >= totalCount) {
@@ -182,7 +182,7 @@ class ListViewController: UITableViewController {
                 
                 self.present(alert, animated: false)
                 
-                self.moreBtn.isHidden = true
+                self.moreBtn.isHidden = true    // 숨김
                 
             }
             
@@ -207,6 +207,25 @@ class ListViewController: UITableViewController {
             mvo.thumbnailImage = UIImage(data: imageData)   // UIImage를 MovieVO 객체에 우선저장
             
             return mvo.thumbnailImage!
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        // 실행된 세그웨이의 식별자가 "seque_detail"이라면
+        if segue.identifier == "segue_detail" {
+            
+            // 첫 번째 인자값을 이용하여 사용자가 몇 번째 행을 선택했는지 확인
+            let path = self.tableView.indexPath(for: sender as! MovieCell)
+            
+            // 행 정보를 통해 선택된 영화 데이터를 찾은 다음, 목적지 뷰에 전달
+            let detailVC = segue.destination as? DetailViewController            
+            detailVC?.mvo = self.list[path!.row]
+            
+            // tableView.indexPath(for:) = for에 해당되는 indexPath 객체
+            // sender는 세그가 발생한 객체
+            // segue.destination : 세그웨이의 목적지에 해당되는 viewController
+            
         }
     }
 }
