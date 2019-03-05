@@ -32,6 +32,8 @@ class TheaterListController: UITableViewController {
         
         // list배열에서 행에 맞는 데이터 정보
         let obj = self.list[indexPath.row]
+//        let name = self.list[indexPath.row]["상영관명"] as? String
+//        NSLog("name : \(name)")
         
         // 재사용 큐로부터 tCell 식별자에 맞는 셀 객체를 전달받음
         let cell = tableView.dequeueReusableCell(withIdentifier: "tCell") as! TheaterCell
@@ -41,6 +43,28 @@ class TheaterListController: UITableViewController {
         cell.tel.text = obj["연락처"] as? String
         
         return cell
+    }
+    
+    // 세그웨이를 호출
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        // 세그웨이의 identifier 값을 비교
+        if (segue.identifier == "segue_map") {
+            
+            // 선택된 테이블 셀의 indexPath 정보
+            let path = self.tableView.indexPath(for: sender as! UITableViewCell)
+            
+            // list에서 해당 정보 가져오기
+            let obj = self.list[path!.row]
+            
+            // 세그웨이의 목적지 가져오기
+            let dest = segue.destination as? TheaterViewController
+            
+            // 해당 정보 보내기
+            dest?.param = obj
+            
+        }
+        
     }
     
     // 영화관 정보 API를 읽어오는 메소드
